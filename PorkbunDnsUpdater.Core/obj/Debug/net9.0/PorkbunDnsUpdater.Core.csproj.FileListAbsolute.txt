@@ -1,0 +1,12 @@
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\bin\Debug\net9.0\PorkbunDnsUpdater.Core.deps.json
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\bin\Debug\net9.0\PorkbunDnsUpdater.Core.dll
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\bin\Debug\net9.0\PorkbunDnsUpdater.Core.pdb
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.csproj.AssemblyReference.cache
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.AssemblyInfoInputs.cache
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.AssemblyInfo.cs
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.csproj.CoreCompileInputs.cache
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.dll
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\refint\PorkbunDnsUpdater.Core.dll
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\PorkbunDnsUpdater.Core.pdb
+C:\projects\horntvedt.com\tre\PorkbunDnsUpdater.CrossPlatform\PorkbunDnsUpdater.Core\obj\Debug\net9.0\ref\PorkbunDnsUpdater.Core.dll

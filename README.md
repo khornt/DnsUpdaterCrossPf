@@ -39,3 +39,7 @@ This publishes a framework-dependent executable to `~/.local/opt/porkbun-dns-upd
 - This is a proof of concept; DNS changes are real when API credentials are configured. Test with a non-critical DNS record first.
 - The WPF project is retained independently, not yet converted to consume Core (to minimize regression risk).
 - The original ZIP included plaintext Porkbun credentials. Rotate them. The archived WPF `App.config` has the credential values blanked; the Core reads environment variables.
+
+
+## Avalonia alternative
+A third interface is available under `PorkbunDnsUpdater.Avalonia/`. See its README for build, tray integration, and KDE launcher instructions.
