@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Porkbun DynDns Updater (Avalonia)
+Comment=Dynamic DNS updater for Porkbun
+Exec=PorkbunDnsUpdater.Avalonia
+Icon=com.horntvedt.porkbundnsupdater.avalonia
+Terminal=false
+Categories=Network;Utility;
+StartupNotify=true

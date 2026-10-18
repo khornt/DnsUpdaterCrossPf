@@ -27,9 +27,27 @@ public sealed class App : Application
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             
+            var configDirectory = Environment.GetEnvironmentVariable("FLATPAK_ID")
+                is not null
+                ? Environment.GetEnvironmentVariable("XDG_CONFIG_HOME")
+                  ?? Path.Combine(
+                      Environment.GetFolderPath(
+                          Environment.SpecialFolder.UserProfile),
+                      ".config")
+                : AppContext.BaseDirectory;
+
+            Directory.CreateDirectory(configDirectory);
+
+            var configPath = Path.Combine(configDirectory, "appsettings.json");
+
+            if (!File.Exists(configPath))
+            {
+                throw new FileNotFoundException(
+                    $"Configuration file not found: {configPath}");
+            }
+
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile(configPath, optional: false)
                 .Build();
 
             var config = configuration

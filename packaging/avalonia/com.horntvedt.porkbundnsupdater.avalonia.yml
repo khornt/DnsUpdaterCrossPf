@@ -1,0 +1,59 @@
+
+id: com.horntvedt.porkbundnsupdater.avalonia
+
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+
+command: PorkbunDnsUpdater.Avalonia
+
+finish-args:
+  # Porkbun API access
+  - --share=network
+
+  # KDE Plasma / Wayland with Avalonia X11 support
+  - --socket=wayland
+  - --socket=x11
+  - --share=ipc
+
+  # Hardware-accelerated graphics
+  - --device=dri
+
+  # KDE system tray (not yet working)
+  - --talk-name=org.kde.StatusNotifierWatcher
+
+modules:
+  - name: porkbun-avalonia
+    buildsystem: simple
+
+    build-commands:
+      # Install complete self-contained application
+      # including Core and the .NET 10 runtime
+      - install -d /app/bin
+      - |
+        find . -mindepth 1 -maxdepth 1 \
+          ! -name desktop \
+          ! -name icons \
+          -exec cp -a {} /app/bin/ \;
+      - chmod +x /app/bin/PorkbunDnsUpdater.Avalonia
+
+      # Install desktop launcher
+      - install -Dm644 desktop/com.horntvedt.porkbundnsupdater.avalonia.desktop /app/share/applications/com.horntvedt.porkbundnsupdater.avalonia.desktop
+
+      # Install application icon
+      - install -Dm644 icons/com.horntvedt.porkbundnsupdater.avalonia.png /app/share/icons/hicolor/128x128/apps/com.horntvedt.porkbundnsupdater.avalonia.png
+
+    sources:
+      # Complete dotnet publish output
+      - type: dir
+        path: publish
+
+      # Desktop launcher
+      - type: dir
+        path: desktop
+        dest: desktop
+
+      # Application icon
+      - type: dir
+        path: icons
+        dest: icons
