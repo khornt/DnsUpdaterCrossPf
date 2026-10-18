@@ -17,5 +17,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json"  CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-  </ItemGroup>
+  </ItemGroup>   
 </Project>
