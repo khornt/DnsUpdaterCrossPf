@@ -1,45 +1,71 @@
-# Porkbun DNS Updater — GTK 4 Linux port (proof of concept)
+# Porkbun DynDns Updater
 
-The archive includes the original WPF application under `PorkbunDnsUpdater.Wpf` (Windows), a cross-platform library under `PorkbunDnsUpdater.Core`, and a GTK 4 app under `PorkbunDnsUpdater.Gtk` (Linux).
+Desktop dynamic DNS updater for [Porkbun](https://porkbun.com/). The solution contains one shared .NET library and three different user interfaces.
 
-## What works in the GTK project
-- Enter host/domain, select monitoring interval, toggle IPv6, Start/Stop.
-- Calls the original Porkbun API client and DNS updating service, including initial read/update and continuous polling.
-- Displays current IPv4/IPv6, progress log.
-- Normal desktop minimize keeps the process alive; closing the window stops the process. No tray support.
+## Projects
 
-## Start on CachyOS
-Install GTK 4 and .NET SDK 9 or a compatible newer SDK that supports targeting net9.0:
+| Project | Purpose | Platform |
+|---|---|---|
+| `PorkbunDnsUpdater.Core` | Porkbun HTTP client, DNS record handling, IP monitoring and shared models | .NET 10 library |
+| `PorkbunDnsUpdater.Avalonia` | Cross-platform GUI, system tray and activity log | Windows and Linux |
+| `PorkbunDnsUpdater.Gtk` | GTK 4 proof-of-concept GUI | Linux (GTK 4 required) |
+| `PorkbunDnsUpdater.Wpf` | Original GUI; currently has its own backend classes | Windows only |
+
+All four projects target **.NET 10** (`net10.0` or WPF's `net10.0-windows`). WPF is not currently wired to Core; changes in Core will not automatically affect WPF.
+
+## Features and behavior
+
+- Monitors a specified host/domain and updates a Porkbun **A (IPv4)** record when the public IP changes.
+- Optional **AAAA (IPv6)** updates in the Avalonia and GTK interfaces.
+- Initializes the current public IP and DNS record, then polls periodically and logs status.
+- Avalonia offers a non-linear interval selector, with values from **1 minute to 24 hours**, separate IPv4/IPv6 status labels, and system-tray integration.
+
+This application **modifies live DNS records**. Test with a non-critical record and review your Porkbun API permissions before using it.
+
+## Getting started
+
+Install a **.NET 10 SDK** for development. For Linux, GTK additionally requires the GTK 4 native libraries. From the solution root:
 
 ```bash
-sudo pacman -S gtk4 dotnet-sdk
+dotnet restore PorkbunDnsUpdater.Avalonia/PorkbunDnsUpdater.Avalonia.csproj
+dotnet build PorkbunDnsUpdater.Avalonia/PorkbunDnsUpdater.Avalonia.csproj
+dotnet run --project PorkbunDnsUpdater.Avalonia/PorkbunDnsUpdater.Avalonia.csproj
 ```
 
-In Rider open the project folder or GTK `.csproj`, restore NuGet packages, and run `PorkbunDnsUpdater.Gtk`. Or:
+For GTK (Linux):
 
 ```bash
-cp local-credentials.example.sh local-credentials.sh
-# edit local-credentials.sh with NEW Porkbun API credentials
-./PorkbunDnsUpdater.Gtk/run-dev.sh
+sudo pacman -S gtk4   # CachyOS / Arch family
+dotnet run --project PorkbunDnsUpdater.Gtk/PorkbunDnsUpdater.Gtk.csproj
 ```
 
-You can alternatively set `PORKBUN_API_KEY` and `PORKBUN_API_SECRET` in Rider's run configuration. The source archive contains **no uploaded live secrets**. Credentials must be available in the process environment on every launch. For the desktop launcher, configure them through an appropriate local startup wrapper or session environment before launch; the install script does not embed credentials.
+For WPF (Windows):
 
-## KDE application launcher
-
-```bash
-./PorkbunDnsUpdater.Gtk/install-local.sh
+```powershell
+dotnet build PorkbunDnsUpdater.Wpf/PorkbunDnsUpdater.csproj
 ```
 
-This publishes a framework-dependent executable to `~/.local/opt/porkbun-dns-updater/` and installs a KDE-visible desktop launcher. GTK 4 and the matching .NET runtime must be installed. Set credentials in the desktop session environment before starting it.
+Avoid building the whole solution on Linux unless you have deliberately configured Windows targeting: WPF is Windows-specific.
 
-## Limitations and verification
-- The GTK UI is a fresh translation, not a pixel-identical WPF reproduction.
-- It uses GirCore.Gtk-4.0 0.8.1. The container does not include a .NET SDK or graphical desktop, so it was not compiled/runtime tested. GTK API adjustments may be needed when built in Rider.
-- This is a proof of concept; DNS changes are real when API credentials are configured. Test with a non-critical DNS record first.
-- The WPF project is retained independently, not yet converted to consume Core (to minimize regression risk).
-- The original ZIP included plaintext Porkbun credentials. Rotate them. The archived WPF `App.config` has the credential values blanked; the Core reads environment variables.
+## Configuration
 
+**Avalonia:** The application reads `PorkbunDnsUpdater.Avalonia/appsettings.json` (copied to the build/publish output). Create it from the included `appsettings.example.json` and enter your own Porkbun credentials. It is loaded when the app starts; changes require a restart.
 
-## Avalonia alternative
-A third interface is available under `PorkbunDnsUpdater.Avalonia/`. See its README for build, tray integration, and KDE launcher instructions.
+**WPF:** The independent WPF implementation reads `PorkbunDnsUpdater.Wpf/App.config` through `ConfigurationManager.AppSettings`.
+
+**GTK:** The current `Program.cs` constructs an empty `AppConfig` and does not read API credentials from JSON or environment variables. **Credential setup for GTK is incomplete**; update its configuration loading before attempting real DNS updates. See the GTK README.
+
+Never commit API credentials, share an archive containing them, or publish them as part of a distributable application. The current Avalonia project copies `appsettings.json` to publish output, so publishing with live credentials requires additional care. The example file contains placeholders only.
+
+## Further documentation
+
+- [Avalonia application](PorkbunDnsUpdater.Avalonia/README.md)
+- [GTK 4 application](PorkbunDnsUpdater.Gtk/README.md)
+- [WPF application](PorkbunDnsUpdater.Wpf/README.md)
+- [Technical review](REVIEW_FINDINGS.md)
+
+## Current limitations
+
+- No automated test project is present in the uploaded solution.
+- The Core DNS service polls with a one-second delay loop and can throw on an empty DNS record list; see the review for details.
+- Release builds and GUI behavior were not verified in this review environment, which lacks the .NET SDK.

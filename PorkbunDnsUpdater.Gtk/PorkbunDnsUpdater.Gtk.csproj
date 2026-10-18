@@ -8,5 +8,10 @@
   <ItemGroup>
     <ProjectReference Include="../PorkbunDnsUpdater.Core/PorkbunDnsUpdater.Core.csproj" />
     <PackageReference Include="GirCore.Gtk-4.0" Version="0.9.0-preview.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

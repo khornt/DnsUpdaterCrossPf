@@ -14,89 +14,130 @@ namespace PorkbunDnsUpdater.Core.Services
             _httpClient = httpClient;
         }
 
-        public async Task<string?> InitDnsUpdaterdater(Record record, DnsType dnsType, IProgress<StatusReport> report, CancellationToken ct)
+        
+public async Task<string?> InitDnsUpdaterdater(
+    Record record,
+    DnsType dnsType,
+    IProgress<StatusReport> report,
+    CancellationToken ct)
+{
+    var ipVersion = DnsTypeToString(dnsType);
+
+    // 1. Retrieve public IP address
+    var pingResponse = await _httpClient.Ping(dnsType, ct);
+
+    if (pingResponse == null ||
+        !string.Equals(pingResponse.Status, "SUCCESS",
+            StringComparison.OrdinalIgnoreCase) ||
+        string.IsNullOrWhiteSpace(pingResponse.YourIp))
+    {
+        report.Report(new StatusReport
         {
-           
-            var realIp = await _httpClient.Ping(dnsType, ct);
+            Content = $"Could not retrieve public {ipVersion}: " +
+                      $"{pingResponse?.Message ?? "No valid response"}"
+        });
 
-            if (realIp?.YourIp == null)
-            {
-                var reportBack = "Your public IP is null";
-                report.Report(new StatusReport { Content = reportBack });
-                return null;
-            }
+        return null;
+    }
 
-            // ReSharper disable once InconsistentNaming
-            var IPvX = DnsTypeToString(dnsType);
+    var publicIp = pingResponse.YourIp;
 
-            if (realIp?.YourIp != null && realIp?.Status != "Error")
-            {
-                var reportBack = "Your public " + IPvX + " is: " + realIp?.YourIp;
-                report.Report(new StatusReport { Content = reportBack });
-            }
+    report.Report(new StatusReport
+    {
+        Content = $"Your public {ipVersion} is: {publicIp}"
+    });
 
-            if (realIp == null | realIp?.YourIp == null)
-            {
-                var reportBack = "Could not get " + IPvX + " address";
-                report.Report(new StatusReport { Content = reportBack });
-                return null;
-            }
+    // 2. Retrieve existing DNS record
+    var dnsResponse = await _httpClient.GetPorkbunRecord(
+        record, dnsType, ct);
 
-            var responseDto = await _httpClient.GetPorkbunRecord(record, dnsType, ct);
+    if (dnsResponse == null)
+    {
+        report.Report(new StatusReport
+        {
+            Content = $"Failed to retrieve {ipVersion} DNS record: " +
+                      "Empty response from Porkbun."
+        });
 
-            if (responseDto == null)
-            {
-                var reportBack = "Initialization faild with empty response from Porkbun";
-                report.Report(new StatusReport { Content = reportBack });
-                return null;
-            }
-            else if (responseDto?.Status == "ERROR")
-            {
-                var reportBack = $"Error getting record from Porkbun: {responseDto.Message} ";
-                report.Report(new StatusReport { Content = reportBack });
-                return null;
-            }
+        return null;
+    }
 
-            if (responseDto == null || responseDto?.Records?.Count == 0)
-            {
-                var reportBack = "Initialization faild with empty response from Porkbun";
-                report.Report(new StatusReport { Content = reportBack });
-            }
-            else if (responseDto?.Status == "ERROR")
-            {
-                var reportBack = $"Error getting record from Porkbun: {responseDto.Message} ";
-                report.Report(new StatusReport { Content = reportBack });
-            }
+    if (!string.Equals(dnsResponse.Status, "SUCCESS",
+            StringComparison.OrdinalIgnoreCase))
+    {
+        report.Report(new StatusReport
+        {
+            Content = $"Failed to retrieve {ipVersion} DNS record: " +
+                      $"{dnsResponse.Message ?? "Unknown error"}"
+        });
 
-            var currentDnsIP = responseDto?.Records?.First()?.Content;
+        return null;
+    }
 
-            if (!string.IsNullOrEmpty(currentDnsIP))
-            {
-                var reportBack = $"Your DNS  {IPvX}  is: { currentDnsIP.ToString()}";
-                report.Report(new StatusReport { Content = reportBack });
-            }
-            else
-            {
-                var reportBack = $"Failed retrieving you {IPvX} DNS record";
-                report.Report(new StatusReport { Content = reportBack });
-                return null;
-            }
+    // 3. Validate DNS record collection
+    var dnsRecord = dnsResponse.Records?.FirstOrDefault();
 
-            if (realIp != null && realIp.YourIp != currentDnsIP)
-            {
-                var reportBack = $"Updating DNS {IPvX} PorkbunRecord";
-                report.Report(new StatusReport { Content = reportBack });
+    if (dnsRecord == null ||
+        string.IsNullOrWhiteSpace(dnsRecord.Content))
+    {
+        report.Report(new StatusReport
+        {
+            Content = $"No valid {ipVersion} DNS record found for " +
+                      $"{record.HostName}.{record.Domain}."
+        });
 
-                var response = await _httpClient.UpdatePorkbunRecord(record, dnsType, realIp.YourIp, ct);
+        return null;
+    }
 
-                if (response != null && response.Status == "SUCCESS")
-                {
-                    report.Report(new StatusReport { Content = $"Done Update {IPvX}!"});
-                }
-            }
+    var currentDnsIp = dnsRecord.Content;
 
-            return realIp?.YourIp;
-        }
+    report.Report(new StatusReport
+    {
+        Content = $"Your DNS {ipVersion} is: {currentDnsIp}"
+    });
+
+    // 4. No update required
+    if (string.Equals(publicIp, currentDnsIp,
+            StringComparison.OrdinalIgnoreCase))
+    {
+        report.Report(new StatusReport
+        {
+            Content = $"{ipVersion} DNS record is already up to date."
+        });
+
+        return publicIp;
+    }
+
+    // 5. Update DNS record
+    report.Report(new StatusReport
+    {
+        Content = $"Updating {ipVersion} DNS record..."
+    });
+
+    var updateResponse = await _httpClient.UpdatePorkbunRecord(
+        record, dnsType, publicIp, ct);
+
+    if (updateResponse == null ||
+        !string.Equals(updateResponse.Status, "SUCCESS",
+            StringComparison.OrdinalIgnoreCase))
+    {
+        report.Report(new StatusReport
+        {
+            Content = $"Failed to update {ipVersion} DNS record: " +
+                      $"{updateResponse?.Message ?? "No valid response"}"
+        });
+
+        return null;
+    }
+
+    report.Report(new StatusReport
+    {
+        Content = $"{ipVersion} DNS record updated successfully."
+    });
+
+    return publicIp;
+}
+
 
         
 

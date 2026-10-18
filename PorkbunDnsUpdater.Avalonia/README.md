@@ -1,42 +1,36 @@
-# Porkbun DNS Updater — Avalonia UI
+# Avalonia interface
 
-This is a **third desktop UI** using the existing `PorkbunDnsUpdater.Core` service. The WPF and GTK source projects are retained as provided in the prior conversion.
+Cross-platform graphical interface for `PorkbunDnsUpdater.Core`. Targets **.NET 10** and uses Avalonia 12.1.4 in this archive.
 
 ## Features
-- Native Avalonia desktop window on Windows and Linux
-- Host / Domain / polling interval / IPv6 inputs
-- Start / Stop updater, public IP labels, timestamped activity log
-- **System tray**: closing the window hides it (does not stop DNS updates); clicking tray icon or choosing **Show window** restores it; choose **Quit** to terminate
-- Regular OS minimize button minimizes to taskbar; closing hides to tray
 
-## Linux (CachyOS)
+- Separate Host and Domain inputs.
+- **Non-linear check interval** with selectable values from 1 minute to 24 hours, default 10 minutes.
+- Optional AAAA (IPv6) monitoring and distinct current IPv4/IPv6 status labels.
+- Start and Stop buttons switch visibility when monitoring state changes.
+- Timestamped activity log, with translucent background, bundled background and pig-head artwork.
+- **Tray operation:** closing the main window hides it without stopping monitoring. Use the tray icon or **Show window** to restore it; **Quit** stops the updater and exits.
 
-Install .NET 9 SDK (`dotnet-sdk` package or equivalent), then from the project folder:
+The normal OS minimize control minimizes the window; it does not invoke the application's close-to-tray behavior.
+
+## Configuration
+
+Create `appsettings.json` in this project directory, using `appsettings.example.json` in the solution root as a template. Fill in the `Porkbun` API key and secret. The executable reads it from its output directory at startup using `Microsoft.Extensions.Configuration.Json` and `.Binder`.
+
+**Security:** `appsettings.json` is copied to build **and publish** output. Never distribute a package containing your real credentials. Exclude your local file from version control. Prefer user-specific configuration storage for production use.
+
+## Run (Windows or Linux)
 
 ```bash
-./run-dev.sh
+dotnet run --project PorkbunDnsUpdater.Avalonia/PorkbunDnsUpdater.Avalonia.csproj
 ```
 
-To install a clickable KDE application launcher:
+From the Avalonia project directory on Linux, `./run-dev.sh` performs the same operation. GTK is not needed for the Avalonia GUI.
 
-```bash
-./install-local.sh
-```
+On Linux x64, `./install-local.sh` publishes a **self-contained** application to `~/.local/opt/porkbun-dns-updater-avalonia` and creates a desktop launcher in `~/.local/share/applications`. It does **not** configure or protect API credentials.
 
-The publish script is for Linux x64. GTK is **not** required for the Avalonia version.
+System-tray behavior depends on Linux desktop support for a compatible status notifier; test on your own desktop environment.
 
-## Windows
-Open `PorkbunDnsUpdater.Avalonia.csproj` in Rider and run it with the .NET SDK. No WPF dependencies are needed for this project.
+## Notes
 
-## Porkbun credentials
-
-Set `PORKBUN_API_KEY` and `PORKBUN_API_SECRET` as process environment variables, and optionally `PORKBUN_API_URL` / `PORKBUN_API_URL_V4`. **Do not put real credentials into source-controlled files.** If launched from KDE rather than a terminal, environment variables must be available to the desktop session (a terminal-only `export` is not enough). These credentials are read when the app starts.
-
-## Platform notes
-
-Avalonia TrayIcon is officially supported on Windows and on Linux desktops implementing StatusNotifierItem or AppIndicator. KDE Plasma generally supports this. The tray icon and interactions still need functional verification on your specific CachyOS system.
-
-## Limitations
-- Source is prepared but **not build-verified** in this environment (no `dotnet` SDK available).
-- Core is shared with GTK. The WPF project is retained in its prior form and still contains duplicated business classes; cleanup is pending as previously agreed.
-- Quit cancels the monitoring token, then terminates the app; it is not a long-running background daemon.
+The application depends on the shared Core library, not on the WPF backend. `Stop updater` cancels the update token; tray **Quit** requests cancellation and shuts down the application. Graceful completion of outstanding HTTP operations is not awaited in `App.Quit`.
