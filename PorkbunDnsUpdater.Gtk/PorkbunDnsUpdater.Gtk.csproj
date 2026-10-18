@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets/**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

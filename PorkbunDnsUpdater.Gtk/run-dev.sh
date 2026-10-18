@@ -6,3 +6,4 @@ if [[ ! -f appsettings.json ]]; then
     exit 1
 fi
 exec dotnet run --project PorkbunDnsUpdater.Gtk.csproj
+  

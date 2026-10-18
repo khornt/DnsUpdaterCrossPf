@@ -189,7 +189,7 @@ public async Task<string?> InitDnsUpdaterdater(
                 }
 
                 ct.ThrowIfCancellationRequested();
-                await Task.Delay(1000, ct);
+                await Task.Delay(5000, ct);
             }
         }
 
