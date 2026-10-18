@@ -178,10 +178,13 @@ internal sealed class DnsWindow
         {
             // Scale the actual image data to 125x125 maximum.
             var pixbuf = global::GdkPixbuf.Pixbuf.NewFromFileAtScale(
-                pigPath,
-                125,
-                125,
-                true);
+                pigPath, 125, 125, true);
+
+            if (pixbuf is null)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to load pork head image: {pigPath}");
+            }
 
             var texture = global::Gdk.Texture.NewForPixbuf(pixbuf);
 

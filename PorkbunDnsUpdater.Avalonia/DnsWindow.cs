@@ -20,7 +20,7 @@ public sealed class DnsWindow : Window
 
     private readonly TextBox _host = new()
     {
-        Watermark = "e.g. home",
+        PlaceholderText = "host",
         Width = 220,
         Height = 34,
         Margin = new Thickness(0, 3, 0, 3),
@@ -29,7 +29,7 @@ public sealed class DnsWindow : Window
 
     private readonly TextBox _domain = new()
     {
-        Watermark = "example.com",
+        PlaceholderText = "example.com",
         Width = 220,
         Height = 34,
         Margin = new Thickness(0, 3, 0, 3),
