@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
+﻿namespace PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Response
 {
-    using System;
-    using System.Collections.Generic;
-
     namespace JsonToCSharp
     {
         public class PorkbunRecord

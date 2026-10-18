@@ -1,27 +1,29 @@
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.Services;
-using PorkbunDnsUpdater.ViewModels;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.Services;
+using PorkbunDnsUpdater.Core.ViewModels;
+
+namespace PorkbunDnsUpdater.Gtk;
 
 internal sealed class DnsWindow
 {
-    private readonly Gtk.ApplicationWindow _window;
+    private readonly global::Gtk.ApplicationWindow _window;
     private readonly AppConfig _config;
     private readonly PorkbunUpdaterService _updater;
     private readonly SynchronizationContext? _uiContext;
     private CancellationTokenSource? _cts;
     private Task? _runningTask;
 
-    private Gtk.Entry _host = null!;
-    private Gtk.Entry _domain = null!;
-    private Gtk.SpinButton _interval = null!;
-    private Gtk.CheckButton _ipv6 = null!;
-    private Gtk.Label _ipv4Label = null!;
-    private Gtk.Label _ipv6Label = null!;
-    private Gtk.TextBuffer _logBuffer = null!;
-    private Gtk.Button _start = null!;
-    private Gtk.Button _stop = null!;
+    private global::Gtk.Entry _host = null!;
+    private global::Gtk.Entry _domain = null!;
+    private global::Gtk.SpinButton _interval = null!;
+    private global::Gtk.CheckButton _ipv6 = null!;
+    private global::Gtk.Label _ipv4Label = null!;
+    private global::Gtk.Label _ipv6Label = null!;
+    private global::Gtk.TextBuffer _logBuffer = null!;
+    private global::Gtk.Button _start = null!;
+    private global::Gtk.Button _stop = null!;
 
-    public DnsWindow(Gtk.ApplicationWindow window, AppConfig config, PorkbunUpdaterService updater)
+    public DnsWindow(global::Gtk.ApplicationWindow window, AppConfig config, PorkbunUpdaterService updater)
     {
         _window = window;
         _config = config;
@@ -31,51 +33,51 @@ internal sealed class DnsWindow
 
     public void Build()
     {
-        var outer = Gtk.Box.New(Gtk.Orientation.Vertical, 12);
+        var outer = global::Gtk.Box.New(global::Gtk.Orientation.Vertical, 12);
         outer.SetMarginTop(18);
         outer.SetMarginBottom(18);
         outer.SetMarginStart(22);
         outer.SetMarginEnd(22);
-        outer.Append(Gtk.Label.New("Porkbun Dynamic DNS Updater"));
+        outer.Append(global::Gtk.Label.New("Porkbun Dynamic DNS Updater"));
 
-        var form = Gtk.Grid.New();
+        var form = global::Gtk.Grid.New();
         form.SetRowSpacing(10);
         form.SetColumnSpacing(12);
         outer.Append(form);
 
-        _host = Gtk.Entry.New();
+        _host = global::Gtk.Entry.New();
         _host.PlaceholderText = "e.g. home";
-        _domain = Gtk.Entry.New();
+        _domain = global::Gtk.Entry.New();
         _domain.PlaceholderText = "example.com";
-        _interval = Gtk.SpinButton.NewWithRange(1, 1440, 1);
+        _interval = global::Gtk.SpinButton.NewWithRange(1, 1440, 1);
         _interval.SetValue(10);
-        _ipv6 = Gtk.CheckButton.NewWithLabel("Also update IPv6 (AAAA)");
+        _ipv6 = global::Gtk.CheckButton.NewWithLabel("Also update IPv6 (AAAA)");
 
         AddRow(form, 0, "Host", _host);
         AddRow(form, 1, "Domain", _domain);
         AddRow(form, 2, "Check interval (minutes)", _interval);
         form.Attach(_ipv6, 1, 3, 1, 1);
 
-        _ipv4Label = Gtk.Label.New("Not checked");
-        _ipv6Label = Gtk.Label.New("Not checked");
+        _ipv4Label = global::Gtk.Label.New("Not checked");
+        _ipv6Label = global::Gtk.Label.New("Not checked");
         AddRow(form, 4, "Public IPv4", _ipv4Label);
         AddRow(form, 5, "Public IPv6", _ipv6Label);
 
-        var actions = Gtk.Box.New(Gtk.Orientation.Horizontal, 8);
-        _start = Gtk.Button.NewWithLabel("Start updater");
-        _stop = Gtk.Button.NewWithLabel("Stop");
+        var actions = global::Gtk.Box.New(global::Gtk.Orientation.Horizontal, 8);
+        _start = global::Gtk.Button.NewWithLabel("Start updater");
+        _stop = global::Gtk.Button.NewWithLabel("Stop");
         _stop.SetSensitive(false);
         actions.Append(_start);
         actions.Append(_stop);
         outer.Append(actions);
 
-        outer.Append(Gtk.Label.New("Activity log"));
-        var logView = Gtk.TextView.New();
+        outer.Append(global::Gtk.Label.New("Activity log"));
+        var logView = global::Gtk.TextView.New();
         logView.SetEditable(false);
         logView.SetCursorVisible(false);
-        logView.SetWrapMode(Gtk.WrapMode.WordChar);
+        logView.SetWrapMode(global::Gtk.WrapMode.WordChar);
         _logBuffer = logView.GetBuffer();
-        var scroller = Gtk.ScrolledWindow.New();
+        var scroller = global::Gtk.ScrolledWindow.New();
         scroller.SetMinContentHeight(220);
         scroller.SetChild(logView);
         scroller.SetVexpand(true);
@@ -88,9 +90,9 @@ internal sealed class DnsWindow
         AppendLog("Ready. Set PORKBUN_API_KEY and PORKBUN_API_SECRET in the environment before starting.");
     }
 
-    private static void AddRow(Gtk.Grid grid, int row, string label, Gtk.Widget input)
+    private static void AddRow(global::Gtk.Grid grid, int row, string label, global::Gtk.Widget input)
     {
-        var caption = Gtk.Label.New(label);
+        var caption = global::Gtk.Label.New(label);
         caption.SetXalign(0);
         grid.Attach(caption, 0, row, 1, 1);
         grid.Attach(input, 1, row, 1, 1);
@@ -119,10 +121,14 @@ internal sealed class DnsWindow
         _ipv6.SetSensitive(false);
 
         var status = new InlineProgress<StatusReport>(r => PostUi(() => AppendLog(r.Content)));
+        
         var progress = new InlineProgress<ProgressReport>(r => PostUi(() =>
         {
-            if (r.DnsType == DnsType.A) _ipv4Label.SetText(r.IP);
-            else _ipv6Label.SetText(r.IP);
+            if (r.IP != null)
+            {
+                if (r.DnsType == DnsType.A) _ipv4Label.SetText(r.IP);
+                else _ipv6Label.SetText(r.IP);    
+            }
         }));
         _runningTask = UpdateAsync();
         try { await _runningTask; }
@@ -173,8 +179,8 @@ internal sealed class DnsWindow
 
     private void AppendLog(string message)
     {
-        var end = _logBuffer.GetEndIter();
-        _logBuffer.Insert(ref end, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {message}\n", -1);
+        _logBuffer.GetEndIter(out var end);
+        _logBuffer.Insert(end, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {message}\n", -1);
     }
 
     private sealed class InlineProgress<T> : IProgress<T>

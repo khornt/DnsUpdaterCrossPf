@@ -1,6 +1,6 @@
-﻿using PorkbunDnsUpdater.ViewModels;
+﻿using PorkbunDnsUpdater.Core.ViewModels;
 
-namespace PorkbunDnsUpdater.Models
+namespace PorkbunDnsUpdater.Core.Models
 {
     public class ProgressReport
     {                

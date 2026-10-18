@@ -1,11 +1,14 @@
-namespace PorkbunDnsUpdater.Models;
+namespace PorkbunDnsUpdater.Core.Models;
 
 public class AppConfig
 {
-    public string PorkbunApiUrl => Environment.GetEnvironmentVariable("PORKBUN_API_URL")
-        ?? "https://api.porkbun.com/api/json/v3";
-    public string PorkbunApiUrlv4 => Environment.GetEnvironmentVariable("PORKBUN_API_URL_V4")
-        ?? "https://api-ipv4.porkbun.com/api/json/v3";
-    public string PorkbunApiKey => Environment.GetEnvironmentVariable("PORKBUN_API_KEY") ?? "";
-    public string PorkbunApiSecret => Environment.GetEnvironmentVariable("PORKBUN_API_SECRET") ?? "";
+    public string PorkbunApiUrl { get; set; } =
+        "https://api.porkbun.com/api/json/v3";
+
+    public string PorkbunApiUrlv4 { get; set; } =
+        "https://api-ipv4.porkbun.com/api/json/v3";
+
+    public string PorkbunApiKey { get; set; } = "";
+
+    public string PorkbunApiSecret { get; set; } = "";
 }

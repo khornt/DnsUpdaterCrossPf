@@ -1,4 +1,4 @@
-﻿namespace PorkbunDnsUpdater.Models
+﻿namespace PorkbunDnsUpdater.Core.Models
 {
    public class StatusReport
    {

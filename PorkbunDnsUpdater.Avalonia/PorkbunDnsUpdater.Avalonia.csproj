@@ -10,7 +10,12 @@
     <PackageReference Include="Avalonia" Version="11.3.6" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.6" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.21" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.21" />
     <ProjectReference Include="../PorkbunDnsUpdater.Core/PorkbunDnsUpdater.Core.csproj" />
     <AvaloniaResource Include="Assets/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json"  CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

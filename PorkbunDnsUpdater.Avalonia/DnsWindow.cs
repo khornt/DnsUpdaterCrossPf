@@ -3,11 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.Services;
-using PorkbunDnsUpdater.ViewModels;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.Services;
+using PorkbunDnsUpdater.Core.ViewModels;
 
-namespace PorkbunDnsUpdater.AvaloniaApp;
+namespace PorkbunDnsUpdater.Avalonia;
 
 public sealed class DnsWindow : Window
 {

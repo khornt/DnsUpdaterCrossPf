@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Response
+namespace PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Response
 {
     public class PingResponse
     {

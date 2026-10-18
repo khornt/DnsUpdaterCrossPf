@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PorkbunDnsUpdater.Backend.PorkBun.Dto.Request
+namespace PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Request
 {
     public class PorkbunDto
     {

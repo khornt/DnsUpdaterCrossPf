@@ -1,14 +1,13 @@
-﻿using System.Net.Http;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using PorkbunDnsUpdater.Backend.PorkBun.Dto.Request;
-using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response;
-using PorkbunDnsUpdater.Backend.PorkBun.Dto.Response.JsonToCSharp;
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.ViewModels;
+using PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Request;
+using PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Response;
+using PorkbunDnsUpdater.Core.Backend.PorkBun.Dto.Response.JsonToCSharp;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.ViewModels;
 
-namespace PorkbunDnsUpdater.Backend.PorkBun.WebClient
+namespace PorkbunDnsUpdater.Core.Backend.PorkBun.WebClient
 {
     public class PorkbunHttpClient : IPorkbunHttpClient
     {

@@ -1,14 +1,15 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml.Styling;
-using Avalonia.Themes.Fluent;
 using Avalonia.Platform;
-using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.Services;
+using Avalonia.Themes.Fluent;
+using Microsoft.Extensions.Configuration;
+using PorkbunDnsUpdater.AvaloniaApp;
+using PorkbunDnsUpdater.Core.Backend.PorkBun.WebClient;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.Services;
 
-namespace PorkbunDnsUpdater.AvaloniaApp;
+namespace PorkbunDnsUpdater.Avalonia;
 
 public sealed class App : Application
 {
@@ -25,17 +26,34 @@ public sealed class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            var config = new AppConfig();
+            
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            var config = configuration
+                             .GetSection("Porkbun")
+                             .Get<AppConfig>()
+                         ?? throw new InvalidOperationException(
+                             "Missing Porkbun configuration.");
+            
             var updater = new PorkbunUpdaterService(new PorkbunHttpClient(config));
             _window = new DnsWindow(config, updater);
-            // _window.Closing += (_, e) =>
-            // {
-            //     if (_quitting) return;
-            //     e.Cancel = true;
-            //     _window.Hide();
-            // };
+            
+            using var stream = AssetLoader.Open(
+                new Uri("avares://PorkbunDnsUpdater.Avalonia/Assets/tray.ico"));
+
+            _window.Icon = new WindowIcon(stream);
+            
+            _window.Closing += (_, e) =>
+            {
+                if (_quitting) return;
+                e.Cancel = true;
+                _window.Hide();
+            };
             desktop.MainWindow = _window;
-            // ConfigureTray(desktop);
+            ConfigureTray(desktop);
         }
         base.OnFrameworkInitializationCompleted();
     }
@@ -44,21 +62,29 @@ public sealed class App : Application
     {
         var show = new NativeMenuItem("Show window");
         show.Click += (_, _) => ShowWindow();
+
         var quit = new NativeMenuItem("Quit");
         quit.Click += (_, _) => Quit(desktop);
+
         var menu = new NativeMenu();
         menu.Add(show);
         menu.Add(new NativeMenuItemSeparator());
         menu.Add(quit);
 
+        // Load the icon from Avalonia's embedded resources
+        using var stream = AssetLoader.Open(
+            new Uri("avares://PorkbunDnsUpdater.Avalonia/Assets/tray.ico"));
+
         var icon = new TrayIcon
         {
-            Icon = new WindowIcon("avares://PorkbunDnsUpdater.Avalonia/Assets/tray.ico"),
+            Icon = new WindowIcon(stream),
             ToolTipText = "Porkbun DNS Updater",
             Menu = menu,
             IsVisible = true
         };
+
         icon.Clicked += (_, _) => ShowWindow();
+
         TrayIcon.SetIcons(this, new TrayIcons { icon });
     }
 

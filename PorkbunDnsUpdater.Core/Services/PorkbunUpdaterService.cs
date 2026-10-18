@@ -1,8 +1,8 @@
-﻿using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.ViewModels;
+﻿using PorkbunDnsUpdater.Core.Backend.PorkBun.WebClient;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.ViewModels;
 
-namespace PorkbunDnsUpdater.Services
+namespace PorkbunDnsUpdater.Core.Services
 {
     public class PorkbunUpdaterService
     {
@@ -17,17 +17,25 @@ namespace PorkbunDnsUpdater.Services
         public async Task<string?> InitDnsUpdaterdater(Record record, DnsType dnsType, IProgress<StatusReport> report, CancellationToken ct)
         {
            
-            var realIP = await _httpClient.Ping(dnsType, ct);
+            var realIp = await _httpClient.Ping(dnsType, ct);
 
+            if (realIp?.YourIp == null)
+            {
+                var reportBack = "Your public IP is null";
+                report.Report(new StatusReport { Content = reportBack });
+                return null;
+            }
+
+            // ReSharper disable once InconsistentNaming
             var IPvX = DnsTypeToString(dnsType);
 
-            if (realIP?.YourIp != null && realIP?.Status != "Error")
+            if (realIp?.YourIp != null && realIp?.Status != "Error")
             {
-                var reportBack = "Your public " + IPvX + " is: " + realIP?.YourIp;
+                var reportBack = "Your public " + IPvX + " is: " + realIp?.YourIp;
                 report.Report(new StatusReport { Content = reportBack });
             }
 
-            if (realIP == null | realIP.YourIp == null)
+            if (realIp == null | realIp?.YourIp == null)
             {
                 var reportBack = "Could not get " + IPvX + " address";
                 report.Report(new StatusReport { Content = reportBack });
@@ -74,12 +82,12 @@ namespace PorkbunDnsUpdater.Services
                 return null;
             }
 
-            if (realIP.YourIp != currentDnsIP)
+            if (realIp != null && realIp.YourIp != currentDnsIP)
             {
                 var reportBack = $"Updating DNS {IPvX} PorkbunRecord";
                 report.Report(new StatusReport { Content = reportBack });
 
-                var response = await _httpClient.UpdatePorkbunRecord(record, dnsType, realIP.YourIp, ct);
+                var response = await _httpClient.UpdatePorkbunRecord(record, dnsType, realIp.YourIp, ct);
 
                 if (response != null && response.Status == "SUCCESS")
                 {
@@ -87,7 +95,7 @@ namespace PorkbunDnsUpdater.Services
                 }
             }
 
-            return realIP.YourIp;
+            return realIp?.YourIp;
         }
 
         

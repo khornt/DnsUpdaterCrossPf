@@ -1,7 +1,7 @@
-using PorkbunDnsUpdater.Backend.PorkBun.WebClient;
-using PorkbunDnsUpdater.Models;
-using PorkbunDnsUpdater.Services;
-using PorkbunDnsUpdater.ViewModels;
+using PorkbunDnsUpdater.Core.Backend.PorkBun.WebClient;
+using PorkbunDnsUpdater.Core.Models;
+using PorkbunDnsUpdater.Core.Services;
+using PorkbunDnsUpdater.Gtk;
 
 var app = Gtk.Application.New("com.horntvedt.porkbundnsupdater", Gio.ApplicationFlags.FlagsNone);
 app.OnActivate += (sender, _) =>

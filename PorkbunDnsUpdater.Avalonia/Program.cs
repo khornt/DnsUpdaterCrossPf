@@ -1,4 +1,5 @@
 using Avalonia;
+using PorkbunDnsUpdater.Avalonia;
 
 namespace PorkbunDnsUpdater.AvaloniaApp;
 
