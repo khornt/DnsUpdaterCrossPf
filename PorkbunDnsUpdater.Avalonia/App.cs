@@ -42,8 +42,24 @@ public sealed class App : Application
 
             if (!File.Exists(configPath))
             {
-                throw new FileNotFoundException(
-                    $"Configuration file not found: {configPath}");
+                var templatePath = Path.Combine(
+                    AppContext.BaseDirectory,
+                    "appsettings.json");
+
+                if (!File.Exists(templatePath))
+                {
+                    throw new FileNotFoundException(
+                        $"Configuration template not found: {templatePath}");
+                }
+
+                File.Copy(templatePath, configPath);
+
+                if (OperatingSystem.IsLinux())
+                {
+                    File.SetUnixFileMode(
+                        configPath,
+                        UnixFileMode.UserRead | UnixFileMode.UserWrite);
+                }
             }
 
             var configuration = new ConfigurationBuilder()
