@@ -8,19 +8,13 @@ sdk: org.freedesktop.Sdk
 command: PorkbunDnsUpdater.Avalonia
 
 finish-args:
-  # Porkbun API access
   - --share=network
-
-  # KDE Plasma / Wayland with Avalonia X11 support
   - --socket=wayland
   - --socket=x11
   - --share=ipc
-
-  # Hardware-accelerated graphics
   - --device=dri
-
-  # KDE system tray (not yet working)
   - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.*
 
 modules:
   - name: porkbun-avalonia

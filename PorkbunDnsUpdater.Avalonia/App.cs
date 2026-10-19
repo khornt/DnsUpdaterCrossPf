@@ -1,10 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Themes.Fluent;
 using Microsoft.Extensions.Configuration;
-using PorkbunDnsUpdater.AvaloniaApp;
 using PorkbunDnsUpdater.Core.Backend.PorkBun.WebClient;
 using PorkbunDnsUpdater.Core.Models;
 using PorkbunDnsUpdater.Core.Services;
@@ -94,16 +95,22 @@ public sealed class App : Application
 
     private void ConfigureTray(IClassicDesktopStyleApplicationLifetime desktop)
     {
-        var show = new NativeMenuItem("Show window");
+        var show = new NativeMenuItem("Show");
         show.Click += (_, _) => ShowWindow();
 
-        var quit = new NativeMenuItem("Quit");
+        var about = new NativeMenuItem("About");
+        about.Click += (_, _) => ShowAbout();
+
+        var quit = new NativeMenuItem("Exit");
         quit.Click += (_, _) => Quit(desktop);
 
-        var menu = new NativeMenu();
-        menu.Add(show);
-        menu.Add(new NativeMenuItemSeparator());
-        menu.Add(quit);
+        var menu = new NativeMenu
+        {
+            show,
+            about,
+            new NativeMenuItemSeparator(),
+            quit
+        };
 
         // Load the icon from Avalonia's embedded resources
         using var stream = AssetLoader.Open(
@@ -120,6 +127,56 @@ public sealed class App : Application
         icon.Clicked += (_, _) => ShowWindow();
 
         TrayIcon.SetIcons(this, new TrayIcons { icon });
+    }
+    
+    private async void ShowAbout()
+    {
+        ShowWindow();
+
+        var dialog = new Window
+        {
+            Title = "Dynamic DNS Client",
+            Width = 430,
+            Height = 150,
+            CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new StackPanel
+            {
+                Margin = new Thickness(15),
+                Spacing = 15,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = CreateAboutText(),
+                        TextWrapping = TextWrapping.Wrap
+                    },
+                    new Button
+                    {
+                        Content = "OK",
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        IsDefault = true,
+                        IsCancel = true
+                    }
+                }
+            }
+        };
+
+        var button = (Button)((StackPanel)dialog.Content!).Children[1];
+        button.Click += (_, _) => dialog.Close();
+
+        if (_window is not null)
+            await dialog.ShowDialog(_window);
+    }
+
+    private static string CreateAboutText()
+    {
+        return """
+               Dynamic DNS Client (0.9) for Porkbun DNS
+               Copyright © 2025 Horntvedt.com. No rights reserved
+
+               Credits: Me :-)
+               """;
     }
 
     private void ShowWindow()
